@@ -1,0 +1,155 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "SQL_SERVER_NAME": {
+           "type": "string",
+           "metadata": {
+                "description": "description; Enter sql name"
+            }
+        },
+        "SQLAdminName": {
+           "type": "string",
+           "metadata": {
+                "description": "description: Enter your sql admin name"
+            }
+        },
+        "SQLPassword": {
+           "type": "securestring",
+           "metadata": {
+                "description": "description: Enter your sql pass"
+            }
+        },
+        "AZWEBAPP": {
+           "type": "string",
+           "metadata": {
+                "description": "description: Enter web app name"
+            }
+        }
+        
+    },
+    "functions": [],
+    "variables": {
+        "SQLServerName": "[parameters('SQL_SERVER_NAME')]",
+        "SQLAdminName": "[parameters('SQLAdminName')]",
+        "SQLPassword": "[parameters('SQLPassword')]",
+        "AZWEBAPP": "[parameters('AZWEBAPP')]"
+        
+    },
+    "resources": [
+        {
+            "name": "webNSG",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2018-08-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "RDP",
+                        "properties": {
+                            "description": "description: ALLOW RDP",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                       "name": "SSH",
+                        "properties": {
+                            "description": "description: ALLOW SSH",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "22",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 500,
+                            "direction": "Inbound"
+                    }
+                    },
+                    {
+                       "name": "node",
+                        "properties": {
+                            "description": "description: ALLOW node",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "9000",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 900,
+                            "direction": "Inbound"
+                    } 
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[variables('SQLServerName')]",
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2015-05-01-preview",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "[variables('SQLServerName')]"
+            },
+            "properties": {
+                "administratorLogin": "[variables('SQLAdminName')]",
+                "administratorLoginPassword": "[variables('SQLPassword')]"
+            },
+            "resources": [
+                {
+                    "type": "firewallRules",
+                    "apiVersion": "2015-05-01-preview",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Sql/servers', variables('SQLServerName'))]"
+                    ],
+                    "location": "[resourceGroup().location]",
+                    "name": "AllowAllWindowsAzureIps",
+                    "properties": {
+                        "startIpAddress": "0.0.0.0",
+                        "endIpAddress": "0.0.0.0"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "wagawebapp",
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2016-08-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/wagawebapp')]": "Resource",
+                "displayName": "wagawebapp"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', 'wagawebapp')]"
+            ],
+            "properties": {
+                "name": "[variables('AZWEBAPP')]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', 'wagawebapp')]"
+            }
+        },
+        {
+            "name": "wagawebapp",
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2018-02-01",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "F1",
+                "capacity": 1
+            },
+            "tags": {
+                "displayName": "wagawebapp"
+            },
+            "properties": {
+                "name": "wagawebapp"
+            }
+        }
+    ],
+    "outputs": {}
+}

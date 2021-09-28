@@ -1,0 +1,12 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "test_wagakv": {
+            "value": "test2wagakv"
+        },
+        "test_waga_sg": {
+            "value": "test2webNSG"
+        }
+    }
+}

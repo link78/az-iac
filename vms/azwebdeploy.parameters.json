@@ -1,0 +1,17 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "vmAdmin": {
+            "value": "devvmadmin"
+        },
+        "vmPassord": {
+            "reference": {
+                "keyVault": {
+                    "id": "/subscriptions/950a1095-11f2-4666-9e37-f08b8a56f95d/resourceGroups/waga_rg/providers/Microsoft.KeyVault/vaults/wagakv"
+                },
+                "secretName": "vmpassword"
+            }
+        }
+    }
+}
