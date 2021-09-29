@@ -32,13 +32,14 @@
     },
     "resources": [
       {
-        "name": "linkedTemplate",
+        "name": "wagasadev",
         "type": "Microsoft.Resources/deployments",
         "apiVersion": "2021-04-01",
         "properties": {
           "mode": "Incremental",
           "templateLink": {
-            "relativePath": "linkedSA.json"
+            "uri" : "https://raw.githubusercontent.com/link78/az-iac/main/linked/linkedSA.json"
+            
           },
           "parameters": {
             "storageAccountName": {
@@ -50,6 +51,18 @@
           }
         }
       },
+   {
+       "name": "wagasql",
+       "type": "Microsoft.Resources/deployments",
+       "apiVersion": "2020-10-01",
+       "properties": {
+           "mode": "Incremental",
+           "templateLink": {
+               "uri": ""
+               
+           }
+       }
+   },
       {
         "type": "Microsoft.Web/serverfarms",
         "apiVersion": "2020-12-01",
@@ -90,7 +103,7 @@
     "outputs": {
       "storageEndpoint": {
         "type": "object",
-        "value": "[reference('linkedTemplate').outputs.storageEndpoint.value]"
+        "value": "[reference('wagasadev').outputs.storageEndpoint.value]"
       }
     }
   }
